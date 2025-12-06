@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { TTS_SPEEDS } from '../../utils/constants';
 
-const TTS_SERVER_URL = 'http://localhost:8765';
+// Use environment variable in production, fallback to localhost for dev
+const TTS_SERVER_URL = import.meta.env.VITE_TTS_SERVER_URL || 'http://localhost:8765';
 const CHUNK_SIZE = 450; // Characters per chunk (leaving buffer for API limits)
 
 // Kokoro voices from Python server
