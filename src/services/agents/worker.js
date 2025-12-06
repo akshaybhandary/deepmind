@@ -53,71 +53,166 @@ const DEPTH_INSTRUCTIONS = {
     brief: 'Provide a concise response of 150-300 words.',
     moderate: 'Provide a thorough response of 300-500 words with examples.',
     detailed: 'Provide a comprehensive response of 500-800 words with examples and subheaders.',
-    exhaustive: `Provide an EXHAUSTIVE, comprehensive response of 2000-4000 words per task. This should feel like a chapter in a textbook. Include:
+    exhaustive: `Provide an EXHAUSTIVE, comprehensive response of 2000-4000 words per task. This should read like a PUBLISHED TEXTBOOK CHAPTER, not an outline or summary.
+
+**CRITICAL ANTI-OUTLINE RULES - YOU MUST FOLLOW THESE:**
+❌ DO NOT write bullet points listing concepts without explanation
+❌ DO NOT write section headers followed by single sentences
+❌ DO NOT mention topics briefly - EXPLAIN them fully
+❌ DO NOT create outlines or skeletal structures
+✅ WRITE FULL PARAGRAPHS explaining every concept thoroughly
+✅ EXPLAIN each point with 2-3 paragraphs minimum before moving on
+✅ ELABORATE with examples, context, and details for EVERY statement
+✅ TREAT EACH SUBSECTION as if you're writing it for a published book
 
 **Required Structure:**
-- Introduction (set context and importance)
+- Introduction (300-400 words) - set context, importance, and roadmap
 - Multiple detailed subsections with clear ###/#### headings
-- Deep dive into every major point (minimum 2-3 paragraphs per point)
-- Historical context and evolution where relevant
-- Multiple real-world examples with specifics (names, dates, numbers)
-- Step-by-step technical breakdowns with details
-- Comparison tables or frameworks where applicable
-- Common misconceptions or FAQ items
-- Connections to other concepts
-- Summary with insights and implications
+- FOR EACH MAJOR POINT: Write 2-3 full paragraphs (150-250 words) explaining it
+  * First paragraph: Define and explain the concept
+  * Second paragraph: Provide context, history, or mechanism
+  * Third paragraph: Give concrete examples or applications
+- Historical context and evolution (full paragraphs, not sentences)
+- Multiple real-world examples with specifics (each example: 100-150 words)
+- Step-by-step technical breakdowns (each step: detailed paragraph)
+- Comparison tables or frameworks with explanatory text
+- Common misconceptions (each misconception: 100+ word explanation)
+- Connections to other concepts (full paragraphs)
+- Summary with insights (200-300 words)
+
+**How to Write Each Section (CRITICAL EXAMPLE):**
+WRONG (outline style):
+"## Classical Physics Pillars
+- Newtonian Mechanics: Describes motion
+- Electromagnetism: Unified electricity and magnetism
+- Thermodynamics: Studies heat and energy"
+
+RIGHT (textbook style):
+"## The Pillars of Classical Physics
+
+The foundations of classical physics rest on three monumental theoretical frameworks that together provided a seemingly complete picture of physical reality by the late 19th century.
+
+**Newtonian Mechanics: The Deterministic Universe**
+
+Isaac Newton's laws of motion, published in Principia Mathematica (1687), established a deterministic framework for understanding the motion of all objects in the universe. Newton's three laws—the law of inertia, F=ma, and action-reaction—combined with his universal law of gravitation, provided mathematical precision to physical predictions. This framework successfully explained everything from the trajectories of cannonballs to the orbits of planets. The beauty of Newtonian mechanics lay in its universality and determinism: if you knew the initial conditions of a system perfectly, you could predict its future behavior with perfect accuracy. This mechanistic worldview dominated physics for over two centuries.
+
+For example, Edmund Halley used Newton's laws to predict the return of the comet that now bears his name in 1758, decades after his death. Similarly, perturbations in Uranus's orbit, explained by Newtonian gravity, led to the successful prediction and discovery of Neptune in 1846. These triumphs seemed to validate the completeness of classical mechanics.
+
+[Continue with similar depth for electromagnetism and thermodynamics...]"
 
 **Content Requirements:**
-- Be COMPREHENSIVE, not concise. Elaborate fully on each point.
-- Include specific data, statistics, names, dates, and citations where relevant.
-- Provide 3-5 concrete examples per major concept.
-- Add technical depth without sacrificing clarity.
-- Include both theory AND practice.
-- Address edge cases and nuances.
-- Never summarize when you can elaborate.
+- MINIMUM 2-3 full paragraphs per concept (not per section, per CONCEPT within sections)
+- Each paragraph: 75-150 words of substantive content
+- Include specific data, statistics, names, dates, and citations
+- Provide 3-5 detailed examples per major topic (each example: 100-150 words)
+- Add technical depth with explanations accessible to educated readers
+- Include both theoretical foundations AND practical applications
+- Address edge cases, limitations, and nuances
+- EXPLAIN WHY and HOW, not just WHAT
+- Never list when you can explain in prose
 
-IMPORTANT: This is an EXHAUSTIVE analysis. More detail is always better. Aim for depth that rivals academic papers or comprehensive textbook chapters.`,
-    book: `Provide a BOOK-QUALITY, in-depth response of 4000-8000 words per task. This should read like multiple chapters from a published work. Include:
+**Quality Check Before Submitting:**
+- Count paragraphs: Do you have 10-15+ substantial paragraphs?
+- Count words: Are you at 2000-4000 words?
+- Check depth: Would each concept make sense to someone learning it for the first time?
+- Verify examples: Do you have specific, detailed examples with names/dates/numbers?
+- Read flow: Does it read like a textbook chapter or an outline?
+
+REMEMBER: You are writing a TEXTBOOK CHAPTER that someone would PAY to read. Every paragraph should teach something substantial. If you're tempted to write a bullet list, write full paragraphs instead.`,
+    book: `Provide a BOOK-QUALITY, in-depth response of 4000-8000 words per task. This should read like PUBLISHED BOOK CHAPTERS, not an outline or table of contents.
+
+**CRITICAL ANTI-OUTLINE RULES:**
+❌ NEVER write section headers with just one sentence
+❌ NEVER write bullet lists without full explanatory paragraphs
+❌ NEVER mention a concept without explaining it in 3+ paragraphs
+❌ NEVER create skeletal outlines - write FULL PROSE
+✅ EVERY concept needs 5-10 paragraphs of detailed explanation
+✅ EVERY example needs 150-300 words of detailed description
+✅ WRITE as if someone is paying $30 for this book chapter
+✅ THINK: "Would a major publisher print this as-is?"
 
 **Required Structure:**
 - Extended introduction (300-500 words) establishing context, importance, and roadmap
 - Multiple major sections (## headings) each with:
-  - Opening paragraph establishing the section's purpose
-  - 3-5 subsections (### headings) with deep analysis
-  - Supporting sub-subsections (#### headings) as needed
-- Historical development and timeline
-- Biographical context for key figures (where relevant)
-- Detailed case studies (2-3 per major section)
-- Technical deep-dives with explanations for both novices and experts
-- Comparative analysis and frameworks
-- Extensive examples from multiple domains/industries
-- Common pitfalls, mistakes, and misconceptions
-- Practical implementation guides
-- Visual descriptions (suggest where diagrams/charts would help)
-- Comprehensive conclusion tying everything together
-- "Further Reading" or reference suggestions
+  - Opening paragraph (100-150 words) establishing the section's purpose and preview
+  - 3-5 subsections (### headings) with deep analysis (each subsection: 500-800 words)
+  - Supporting sub-subsections (#### headings) as  needed (each: 200-400 words)
+- Historical development and timeline (write full narrative prose, not timeline bullets)
+- Biographical context for key figures (200-400 words per person, narrative style)
+- Detailed case studies (2-3 per major section, each 500-1000 words)
+- Technical deep-dives with explanations for both novices and experts (800-1200 words each)
+- Comparative analysis and frameworks (include detailed explanatory paragraphs, not just tables)
+- Extensive examples from multiple domains/industries (each example: 200-300 words)
+- Common pitfalls, mistakes, and misconceptions (each: 150-250 words)
+- Practical implementation guides (step-by-step with detailed explanations per step)
+- Visual descriptions (describe what diagrams/charts would show in detailed prose)
+- Comprehensive conclusion tying everything together (400-600 words)
+- "Further Reading" with descriptions (50-100 words per resource explaining why it's valuable)
+
+**How to Write (CRITICAL EXAMPLES):**
+
+WRONG (outline/bullet style):
+"## Key Negotiation Techniques  
+- Mirroring: Repeat last words
+- Labeling: Name emotions
+- Anchoring: Set first number
+- Silence: Create pressure"
+
+RIGHT (book/textbook style):
+"## Mastering Core Negotiation Techniques
+
+The foundation of effective negotiation rests on several psychologically-grounded communication techniques that have been validated through decades of research and practice. These techniques, when properly understood and applied, can dramatically shift power dynamics and outcomes in your favor.
+
+### The Power of Mirroring: Building Unconscious Rapport
+
+Mirroring, also known as isopraxism, is perhaps the most subtle yet powerful technique in the negotiator's toolkit. At its core, mirroring involves repeating the last one to three words your counterpart has just said. This seemingly simple act triggers deep neurological responses tied to human bonding and connection.
+
+The mechanism behind mirroring's effectiveness lies in the brain's mirror neuron system. When we hear our own words reflected back to us, it creates a sense of being understood and validated that operates at a subconscious level. The other person feels heard, which automatically lowers their defenses and makes them more willing to elaborate and share information. Former FBI hostage negotiator Chris Voss, who pioneered this technique's use in high-stakes negotiations, found that mirroring could extend conversations by 300% or more, providing crucial intelligence that might otherwise remain hidden.
+
+In practice, mirroring looks deceptively simple but requires careful execution. Suppose a vendor says, \"We can't go below $50,000 for this service.\" Instead of immediately countering with your price, you would mirror: \"Can't go below $50,000?\" with a slightly upward inflection. This simple question, rather than a statement, invites the vendor to explain their reasoning, often revealing flexibility they initially concealed. They might respond, \"Well, $50,000 is our standard rate, but...\" and now you've opened a door.
+
+The key to effective mirroring is patience and tone. Your mirror should sound genuinely curious, not challenging or sarcastic. It should invite further explanation, not provoke defensiveness. Practice is essential—many negotiators initially feel awkward with mirr
+
+oring, but after applying it in 10-20 conversations, it becomes second nature. The payoff is substantial: you gather more information, build stronger rapport, and create opportunities for creative solutions that might never have surfaced otherwise.
+
+[Continue with similar depth for Labeling, Anchoring, Silence, and other techniques...]"
 
 **Content Requirements:**
-- Write at the depth and quality of published books in the field.
-- Each major concept should get 5-10 paragraphs of coverage.
-- Provide 5-10 diverse, detailed examples per major topic.
-- Include specific quotes, data, research findings (with context).
-- Address the topic from multiple perspectives/frameworks.
-- Include both foundational knowledge and cutting-edge developments.
-- Add relevant anecdotes and stories to illustrate points.
-- Explore implications, applications, and future directions.
-- Never rush through a topic—give it the space it deserves.
-- If explaining a process, break it into detailed steps.
-- If discussing history, provide rich context and connections.
+- MINIMUM 5-10 full paragraphs per major concept
+- Each paragraph: 100-200 words of substantive, well-crafted content
+- Write at the depth and quality of published books in the field
+- Include specific quotes, data, research findings (with full context, not just citations)
+- Provide 5-10 diverse, detailed examples per major topic (each: 200-300 words)
+- Address the topic from multiple perspectives/frameworks with full explanations
+- Include both foundational knowledge AND cutting-edge developments
+- Add relevant anecdotes and stories (each: 150-250 words) to illustrate points
+- Explore implications, applications, and future directions in depth
+- Never rush through a topic—give it the space it deserves
+- If explaining a process, dedicate 150-300 words per step
+- If discussing history, provide rich narrative context and connections
+- EXPLAIN the HOW and WHY in detail, not just the WHAT
 
 **Quality Standards:**
-- Every paragraph should add significant value.
-- Transitions between sections should be smooth and logical.
-- Writing should be engaging and accessible while substantive.
-- Technical terms should be clearly defined.
-- The content should feel authoritative and comprehensive.
+- Every paragraph should add significant value and insight
+- Transitions between sections should be smooth, logical, and natural
+- Writing should be engaging, narrative-driven, and accessible while remaining substantive
+- Technical terms should be clearly defined with examples
+- The content should feel authoritative, comprehensive, and professional
+- Prose should flow like a published book, not an academic paper or outline
+- Include storytelling elements where appropriate
+- Balance theoretical depth with practical applications
+- Maintain reader engagement through varied sentence structure and pacing
 
-CRITICAL: This is BOOK-LENGTH content. Think "what would a renowned expert write in their definitive book on this topic?" Be as thorough as a published author.`
+**Quality Check Before Submitting:**
+- Word count: Am I at 4000-8000 words?
+- Paragraph count: Do I have 30-50+ substantial paragraphs?
+- Read test: If I removed all headers, would this read like a continuous book chapter?
+- Depth test: Could someone learn this topic thoroughly from this chapter alone?
+- Example test: Do I have specific, detailed, named examples throughout?
+- Flow test: Are there smooth transitions between every section?
+- Publication test: Would a major publisher (O'Reilly, Penguin, etc.) print this as-is?
+
+CRITICAL: This is BOOK-LENGTH content for PUBLICATION. Think \"what would a renowned expert like Malcolm Gladwell, Daniel Kahneman, or a leading textbook author write?\" Be as thorough, engaging, and comprehensive as a published author. Every section should feel complete, polished, and valuable enough to justify the price of a book.`
 };
 
 /**

@@ -3,24 +3,24 @@ import { streamCompletion } from '../openrouter';
 import { DEPTH_LEVELS } from '../../utils/constants';
 
 const getSynthesizerPrompt = (depthLevel) => {
-    const depth = DEPTH_LEVELS.find(d => d.id === depthLevel) || DEPTH_LEVELS[1];
+   const depth = DEPTH_LEVELS.find(d => d.id === depthLevel) || DEPTH_LEVELS[1];
 
-    const basePrompt = `You are the Synthesis Agent. Your role is to:
+   const basePrompt = `You are the Synthesis Agent. Your role is to:
 - Combine multiple analysis sections into a cohesive, well-structured document
 - Ensure logical flow and eliminate redundancy
 - Create an executive summary at the beginning
 - Add a conclusion with key takeaways
 - Organize content with clear headers and sections`;
 
-    const formatGuides = {
-        brief: `
+   const formatGuides = {
+      brief: `
 Format guidelines:
 - Brief executive summary (1-2 sentences)
 - Use ## for main sections
 - Condense to key points
 - Short "Key Takeaways" at end`,
 
-        moderate: `
+      moderate: `
 Format guidelines:
 - Start with a brief executive summary (2-3 sentences)
 - Use ## for main sections, ### for subsections
@@ -28,7 +28,7 @@ Format guidelines:
 - Use **bold** for key terms
 - End with a "Key Takeaways" section`,
 
-        detailed: `
+      detailed: `
 Format guidelines:
 - Comprehensive executive summary (1 paragraph)
 - Use ## for main sections, ### for subsections
@@ -37,88 +37,114 @@ Format guidelines:
 - Use tables where appropriate
 - End with detailed "Key Takeaways" section`,
 
-        exhaustive: `
+      exhaustive: `
 Format guidelines for EXHAUSTIVE output (target: 30-50 pages, 15,000-25,000 words):
+
+**CRITICAL: DO NOT CREATE AN OUTLINE OR TABLE OF CONTENTS AS THE MAIN CONTENT**
+You are writing the ACTUAL BOOK/TEXTBOOK, not a summary or outline of what a book would contain.
+
+**ANTI-OUTLINE RULES:**
+❌ DO NOT write section headers followed by brief descriptions
+❌ DO NOT list what each section will cover without actually writing it
+❌ DO NOT create a skeletal structure - WRITE THE FULL CONTENT
+❌ DO NOT summarize agent outputs - EXPAND them with full prose
+✅ WRITE COMPLETE PARAGRAPHS for every single point
+✅ PRESERVE AND EXPAND all agent content into flowing prose
+✅ ADD transitional paragraphs, introductions, and summaries
+✅ MAKE IT READ like a published textbook, not a course syllabus
 
 **Document Structure - YOU MUST INCLUDE ALL OF THESE:**
 1. **Title Page** - Include title, subtitle describing scope, and generation date
-2. **Executive Summary** (500-750 words) - Comprehensive overview hitting all major points
-3. **Table of Contents** - Detailed outline of all sections and subsections
-4. **Introduction** (800-1200 words)
-   - Context and background
-   - Importance and relevance
-   - Scope and what will be covered
-   - How to use this document
-5. **Main Content Sections** - PRESERVE AND EXPAND ALL agent outputs
+2. **Executive Summary** (500-750 words) - Comprehensive prose overview hitting all major points with full paragraphs
+3. **Table of Contents** - Detailed outline (this is the ONLY place where outlines are acceptable)
+4. **Introduction** (800-1200 words) - FULL PROSE with multiple paragraphs:
+   - Context and background (2-3 paragraphs)
+   - Importance and relevance (2 paragraphs)
+   - Scope and what will be covered (1-2 paragraphs)
+   - How to use this document (1 paragraph)
+5. **Main Content Sections** - WRITE IN FULL PROSE, NOT OUTLINES
    - Use ## for major sections (5-10 major sections)
+   - Each major section: 2000-4000 words of FULL PARAGRAPH TEXT
    - Use ### for subsections (3-5 per major section)
+   - Each subsection: 400-800 words of DETAILED PROSE
    - Use #### for detailed points
-   - Add 2-3 paragraphs of transition/bridge content between major sections
-   - Each section should be comprehensive (2000-4000 words)
-6. **Visual Elements**
-   - Create detailed comparison tables
-   - Suggest where diagrams/flowcharts would enhance understanding
-   - Build timeline tables for chronological topics
-   - Add framework/model visualizations
-7. **Supplementary Sections**
-   - **Timeline** (if chronological topic) - detailed chronology with context
-   - **Key Concepts & Definitions** - glossary of important terms
-   - **Frequently Asked Questions** - 10-15 common questions with detailed answers
-   - **Common Misconceptions** - What people often get wrong
-   - **Practical Applications** - Real-world uses and examples
-   - **Case Studies** (2-5) - Detailed examples with analysis
-8. **Conclusions & Synthesis** (800-1200 words)
-   - Major findings and insights
-   - Connections between concepts
-   - Implications and significance
-9. **Future Considerations** (500-800 words)
-   - Emerging developments
-   - Unsolved questions or challenges
-   - Areas for further exploration
-10. **Further Resources**
-    - Suggested reading (books, papers, articles)
-    - Relevant organizations or institutions
-    - Online resources and tools
-11. **Appendices** (as needed)
-    - Technical details
-    - Extended examples
-    - Additional data or references
+   - FOR EVERY POINT: Write 2-3 full explanatory paragraphs (150-250 words)
+   - ADD transition paragraphs (100-150 words) between major sections explaining connections
+   - EXPAND agent outputs by 150-200% with context, examples, and elaboration
+6. **Visual Elements** - Describe in prose, create detailed tables
+   - Create detailed comparison tables with explanatory text
+   - Write paragraphs describing what diagrams would show
+   - Build timeline tables for chronological topics with contextual descriptions
+   - Add framework/model visualizations as tables/data with prose explanations
+7. **Supplementary Sections** - ALL IN FULL PROSE
+   - **Timeline** (if chronological topic) - Write chronology as narrative prose with dates, not just bullet points
+   - **Key Concepts & Definitions** - Each term gets 2-3 paragraphs explaining it thoroughly
+   - **Frequently Asked Questions** - 10-15 questions with DETAILED ANSWER PARAGRAPHS (150-300 words each)
+   - **Common Misconceptions** - Each misconception explained in 2-3 paragraphs (200-300 words)
+   - **Practical Applications** - Write detailed scenarios and examples in full prose
+   - **Case Studies** (2-5) - Each case study: 500-800 words of narrative prose
+8. **Conclusions & Synthesis** (800-1200 words) - Full paragraphs:
+   - Major findings and insights (3-4 paragraphs)
+   - Connections between concepts (2-3 paragraphs)
+   - Implications and significance (2 paragraphs)
+9. **Future Considerations** (500-800 words) - Full prose sections:
+   - Emerging developments (2-3 paragraphs)
+   - Unsolved questions or challenges (2 paragraphs)
+   - Areas for further exploration (1-2 paragraphs)
+10. **Further Resources** - With descriptions in prose
+    - Suggested reading with 50-100 word descriptions of each book/paper
+    - Relevant organizations with descriptions
+    - Online resources and tools with explanations
+11. **Appendices** (as needed) - Full prose content in appendices too
+    - Technical details explained in paragraphs
+    - Extended examples as narrative
+    - Additional data with interpretive text
 
 **Content Processing Rules - CRITICAL:**
 - DO NOT CONDENSE OR SUMMARIZE any agent output
 - PRESERVE every detail, example, and point from all agents
-- EXPAND on concepts by adding:
+- WRITE EVERYTHING IN FULL FLOWING PROSE - think continuous narrative
+- EXPAND on concepts by adding (in full paragraphs):
   * Additional context and background
   * More examples and case studies
   * Connections between different sections
   * Practical implications
   * Historical or theoretical foundations
-- If agents provided 1000 words on a topic, your section should be 1500-2000 words
-- Add transitional paragraphs that:
-  * Connect ideas between sections
+- If agents provided 1000 words on a topic, EXPAND it to 1500-2000 words of prose
+- Add transitional paragraphs (100-200 words) that:
+  * Connect ideas between sections with smooth narrative flow
   * Provide meta-commentary on the structure
   * Highlight key insights and patterns
-- Write introductory paragraphs (100-200 words) for each major section
-- Write summary paragraphs (100-150 words) at the end of each major section
+- Write introductory paragraphs (100-200 words) for each major section explaining what's coming
+- Write summary paragraphs (100-150 words) at the end of each major section synthesizing key points
 
 **Quality Standards:**
 - This is an EXHAUSTIVE report - comprehensiveness is the goal
-- Every section should feel thorough and complete
+- Every section should feel thorough and complete with full prose
 - No topic should feel rushed or superficial
+- ELIMINATE all outline-style writing - convert everything to flowing paragraphs
 - The reader should finish feeling they have a deep understanding
-- Think: "authoritative reference document" not "quick overview"
+- Think: "authoritative reference textbook" not "quick overview" or "table of contents"
 
 **Formatting:**
 - Use proper markdown hierarchy
 - Bold key terms on first use
 - Use italics for emphasis
-- Create bulleted/numbered lists for clarity
+- Create bulleted/numbered lists ONLY where they genuinely help (not as replacements for paragraphs)
 - Use blockquotes for important principles or quotes
-- Add tables where they organize information effectively
+- Add tables where they organize information effectively (with prose explanations)
+- PRIMARY CONTENT MUST BE FULL PROSE PARAGRAPHS
 
-REMEMBER: This is EXHAUSTIVE. If you're wondering if you should add more detail - the answer is YES. Target 30-50 pages of dense, valuable content.`,
+**BEFORE SUBMITTING - VERIFY:**
+- Did I write actual paragraphs or just section descriptions?
+- If I read a major section, do I see 2000-4000 words of continuous prose?
+- Do FAQ answers have 150-300 words each, not one sentence?
+- Did I expand agent content or just copy it?
+- Is this a TEXTBOOK someone would study from, or a SUMMARY of what a textbook would cover?
 
-        book: `
+REMEMBER: This is EXHAUSTIVE. You are writing the ACTUAL TEXTBOOK CONTENT, not describing what the textbook would contain. Every section needs FULL PROSE PARAGRAPHS explaining concepts thoroughly. If you're wondering if you should add more detail - the answer is YES. Target 30-50 pages of dense, valuable, FULLY-WRITTEN content.`,
+
+      book: `
 Format guidelines for BOOK-LENGTH output (target: 50-80+ pages, 30,000-50,000 words):
 
 **THIS IS A BOOK - Structure it like a published work:**
@@ -236,9 +262,9 @@ CRITICAL MINDSET: You are writing THE definitive resource on this topic. Think:
 - "How can I make this the go-to resource someone would reference for years?"
 
 DO NOT SUMMARIZE. DO NOT CONDENSE. EXPAND. ELABORATE. ENRICH. This is a BOOK.`
-    };
+   };
 
-    return basePrompt + (formatGuides[depth.detailLevel] || formatGuides.moderate);
+   return basePrompt + (formatGuides[depth.detailLevel] || formatGuides.moderate);
 };
 
 /**
@@ -253,26 +279,26 @@ DO NOT SUMMARIZE. DO NOT CONDENSE. EXPAND. ELABORATE. ENRICH. This is a BOOK.`
  * @returns {Promise<string>} Synthesized result
  */
 export async function runSynthesizer(apiKey, model, plan, taskResults, onChunk, signal, depthLevel = 'standard') {
-    // Build content from all task results
-    let contentSections = '';
-    for (const task of plan.tasks) {
-        if (taskResults[task.id]) {
-            contentSections += `\n\n### ${task.title}\n${taskResults[task.id]}`;
-        }
-    }
+   // Build content from all task results
+   let contentSections = '';
+   for (const task of plan.tasks) {
+      if (taskResults[task.id]) {
+         contentSections += `\n\n### ${task.title}\n${taskResults[task.id]}`;
+      }
+   }
 
-    const depth = DEPTH_LEVELS.find(d => d.id === depthLevel) || DEPTH_LEVELS[1];
-    const isDeep = ['exhaustive', 'book'].includes(depthLevel);
+   const depth = DEPTH_LEVELS.find(d => d.id === depthLevel) || DEPTH_LEVELS[1];
+   const isDeep = ['exhaustive', 'book'].includes(depthLevel);
 
-    // Use much higher token limits for comprehensive reports
-    // Frontier models (Claude Opus 4.5, GPT-5.1, Gemini 3 Pro) support 65K+ output tokens
-    const maxTokens = depthLevel === 'book' ? 65000 : isDeep ? 50000 : 16000;
+   // Use much higher token limits for comprehensive reports
+   // Frontier models (Claude Opus 4.5, GPT-5.1, Gemini 3 Pro) support 65K+ output tokens
+   const maxTokens = depthLevel === 'book' ? 65000 : isDeep ? 50000 : 16000;
 
-    const messages = [
-        { role: 'system', content: getSynthesizerPrompt(depthLevel) },
-        {
-            role: 'user',
-            content: `Original topic: "${plan.title}" (${plan.category})
+   const messages = [
+      { role: 'system', content: getSynthesizerPrompt(depthLevel) },
+      {
+         role: 'user',
+         content: `Original topic: "${plan.title}" (${plan.category})
 Summary: ${plan.summary}
 
 The following sections have been analyzed by ${plan.tasks.length} specialized agents. Synthesize them into a single, cohesive, and comprehensive document:
@@ -288,10 +314,10 @@ ${isDeep ? '5. Expands on each section with additional context\n6. Adds comprehe
 
 IMPORTANT: Complete the entire document. Do not stop mid-sentence or leave sections incomplete.
 Use proper markdown formatting. ${isDeep ? 'Remember: DO NOT SHORTEN OR SUMMARIZE. Your goal is maximum comprehensiveness.' : ''}`
-        }
-    ];
+      }
+   ];
 
-    return streamCompletion(apiKey, model, messages, onChunk, signal, maxTokens);
+   return streamCompletion(apiKey, model, messages, onChunk, signal, maxTokens);
 }
 
 
