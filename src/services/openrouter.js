@@ -80,6 +80,8 @@ export async function streamCompletion(apiKey, model, messages, onChunk, signal,
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let fullText = '';
+            let chunkCount = 0;
+            let finishReason = null;
 
             try {
                 while (true) {
@@ -96,19 +98,41 @@ export async function streamCompletion(apiKey, model, messages, onChunk, signal,
 
                             try {
                                 const parsed = JSON.parse(data);
-                                const content = parsed.choices?.[0]?.delta?.content;
+                                const choice = parsed.choices?.[0];
+                                const content = choice?.delta?.content;
+
+                                // Track finish reason
+                                if (choice?.finish_reason) {
+                                    finishReason = choice.finish_reason;
+                                }
+
                                 if (content) {
                                     fullText += content;
+                                    chunkCount++;
                                     onChunk?.(content);
                                 }
                             } catch (e) {
-                                // Skip malformed JSON
+                                // Log malformed JSON for debugging
+                                if (data.length > 10) {
+                                    console.warn('Skipping malformed streaming data:', data.slice(0, 100));
+                                }
                             }
                         }
                     }
                 }
             } finally {
                 reader.releaseLock();
+            }
+
+            // Log warnings for potential issues
+            if (chunkCount === 0) {
+                console.warn(`Stream completed with 0 chunks for model ${model}`);
+            }
+            if (finishReason === 'length') {
+                console.warn(`Response was truncated (hit max_tokens limit) for model ${model}`);
+            }
+            if (!fullText?.trim() && chunkCount > 0) {
+                console.warn(`Received ${chunkCount} chunks but fullText is empty for model ${model}`);
             }
 
             return fullText;

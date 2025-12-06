@@ -99,7 +99,14 @@ export async function runAnalysis({
                 depth  // Pass depth level for content length instructions
             );
 
-            taskResults[task.id] = result;
+            // Validate worker output
+            if (!result?.trim()) {
+                console.warn(`Worker ${agentType} for task "${task.title}" returned empty result`);
+                // Still continue, but don't store the result - synthesis may work without it
+            } else {
+                taskResults[task.id] = result;
+            }
+
             currentProgress += progressPerTask;
             onProgress?.(Math.round(currentProgress));
             onAgentComplete?.(agentType, `Completed: ${task.title}`);
@@ -129,11 +136,34 @@ export async function runAnalysis({
         onAgentComplete?.('synthesizer', 'Analysis complete');
         onProgress?.(100);
 
+        // Validate that we have content - if synthesis failed but we have task results, use them
+        let finalContent = synthesized;
+
+        if (!finalContent?.trim()) {
+            console.warn('Synthesis produced empty content, building from task results...');
+
+            // Check if we have any task results to fall back to
+            const taskResultsContent = Object.entries(taskResults)
+                .map(([taskId, content]) => {
+                    const task = plan.tasks.find(t => t.id === taskId);
+                    return `## ${task?.title || taskId}\n\n${content}`;
+                })
+                .join('\n\n---\n\n');
+
+            if (taskResultsContent?.trim()) {
+                finalContent = `# ${plan.title}\n\n*Note: Synthesis was unable to complete, showing individual agent results.*\n\n${taskResultsContent}`;
+                console.log('Using fallback content from task results');
+            } else {
+                // No content at all - this is an error
+                throw new Error('Analysis produced no content. Please try again.');
+            }
+        }
+
         const result = {
             title: plan.title,
             category: plan.category,
             summary: plan.summary,
-            content: synthesized,
+            content: finalContent,
             tasks: plan.tasks.map(t => ({
                 ...t,
                 result: taskResults[t.id]
@@ -141,7 +171,8 @@ export async function runAnalysis({
             meta: {
                 depth,
                 tasksCompleted: Object.keys(taskResults).length,
-                totalTasks: plan.tasks.length
+                totalTasks: plan.tasks.length,
+                usedFallback: finalContent !== synthesized
             }
         };
 

@@ -247,7 +247,13 @@ function AnalysisPage() {
                     <div className="glass-card slide-up" style={{ padding: 'var(--space-xl)', textAlign: 'center' }}>
                         <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>❌</div>
                         <h3 style={{ marginBottom: 'var(--space-sm)' }}>Analysis Failed</h3>
-                        <p className="text-secondary mb-lg">{currentAnalysis.error}</p>
+                        <p className="text-secondary mb-md">{currentAnalysis.error}</p>
+                        <p className="text-secondary mb-lg" style={{ fontSize: 'var(--font-size-sm)', opacity: 0.7 }}>
+                            Tip: Check browser console (F12) for detailed error information.
+                            {currentAnalysis.error?.includes('empty') || currentAnalysis.error?.includes('no content') ? (
+                                <><br />This may be a temporary API issue. Try again or reduce the depth level.</>
+                            ) : null}
+                        </p>
                         <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center' }}>
                             <button
                                 className="btn btn-primary"
