@@ -29,7 +29,21 @@ Rules:
 - Each task should build on previous ones logically
 - "researcher" gathers information, "analyst" finds patterns, "critic" challenges ideas, "expander" elaborates
 - The instruction should be specific and actionable
-- Dependencies should reference task IDs that must complete first`;
+- Dependencies should reference task IDs that must complete first
+
+**For EXHAUSTIVE and BOOK depth levels, create comprehensive task plans that include:**
+- Foundational/historical research tasks
+- Deep analytical tasks exploring mechanisms and patterns
+- Critical evaluation tasks examining limitations and controversies
+- Expansion tasks adding examples, case studies, and applications
+- Comparative analysis tasks showing relationships between concepts
+- Practical application tasks
+- Edge case and nuance exploration tasks
+- FAQ and common misconception tasks
+- Future trends and implications tasks
+- Glossary and resource compilation tasks
+
+Think: "What would a subject matter expert want to cover comprehensively?" Plan for breadth AND depth.`;
 
 /**
  * Run the coordinator agent to create a task plan

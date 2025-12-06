@@ -175,78 +175,73 @@ export async function exportAsPDF(analysis) {
     };
 
     try {
-        // For large documents, use browser's print function which handles pagination better
-        const contentLength = container.innerHTML.length;
-        console.log('Content length:', contentLength);
+        // Always use browser's print function - it handles pagination better than html2pdf
+        console.log('Opening print dialog for PDF export');
 
-        if (contentLength > 50000) {
-            // Large document - use print dialog
-            console.log('Large document detected, using print dialog');
+        // Open a new window with the content
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
 
-            // Open a new window with the content
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>${analysis.prompt}</title>
-                    <style>
-                        @page { size: A4; margin: 20mm; }
-                        @media print {
-                            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            h1, h2, h3, h4 { page-break-after: avoid; }
-                            tr, li { page-break-inside: avoid; }
-                        }
-                        body {
-                            font-family: Georgia, 'Times New Roman', serif;
-                            line-height: 1.6;
-                            color: #1a1a2e;
-                            font-size: 11pt;
-                            max-width: 170mm;
-                            margin: 0 auto;
-                            padding: 20px;
-                        }
-                        h1 { font-size: 16pt; margin-top: 20px; page-break-after: avoid; }
-                        h2 { font-size: 14pt; margin-top: 18px; page-break-after: avoid; }
-                        h3 { font-size: 12pt; margin-top: 15px; page-break-after: avoid; }
-                        p { margin: 8px 0; text-align: justify; }
-                        ul, ol { padding-left: 20px; }
-                        li { margin: 4px 0; }
-                        code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; }
-                        pre { background: #f1f5f9; padding: 10px; border-radius: 5px; white-space: pre-wrap; }
-                        blockquote { border-left: 3px solid #6366f1; padding-left: 12px; margin: 10px 0; color: #475569; }
-                        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-                        th, td { border: 1px solid #e2e8f0; padding: 6px 8px; }
-                        th { background: #f8fafc; }
-                        .header { border-bottom: 2px solid #6366f1; padding-bottom: 15px; margin-bottom: 20px; }
-                        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 9pt; }
-                    </style>
-                </head>
-                <body>
-                    ${container.innerHTML}
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-
-            // Give it a moment to render, then print
-            setTimeout(() => {
-                printWindow.print();
-                // Don't close immediately - let user save as PDF
-            }, 500);
-
+        if (!printWindow) {
+            alert('Please allow popups to export PDF');
             document.body.removeChild(container);
-            return filename;
+            return null;
         }
 
-        // Small document - use html2pdf as before
-        const worker = html2pdf().set(opt).from(container);
-        await worker.toPdf().save();
-        console.log('PDF saved successfully');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${analysis.prompt}</title>
+                <style>
+                    @page { size: A4; margin: 20mm; }
+                    @media print {
+                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        h1, h2, h3, h4 { page-break-after: avoid; }
+                        tr, li { page-break-inside: avoid; }
+                    }
+                    body {
+                        font-family: Georgia, 'Times New Roman', serif;
+                        line-height: 1.6;
+                        color: #1a1a2e;
+                        font-size: 11pt;
+                        max-width: 170mm;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    h1 { font-size: 16pt; margin-top: 20px; page-break-after: avoid; }
+                    h2 { font-size: 14pt; margin-top: 18px; page-break-after: avoid; }
+                    h3 { font-size: 12pt; margin-top: 15px; page-break-after: avoid; }
+                    p { margin: 8px 0; text-align: justify; }
+                    ul, ol { padding-left: 20px; }
+                    li { margin: 4px 0; }
+                    code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; }
+                    pre { background: #f1f5f9; padding: 10px; border-radius: 5px; white-space: pre-wrap; }
+                    blockquote { border-left: 3px solid #6366f1; padding-left: 12px; margin: 10px 0; color: #475569; }
+                    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                    th, td { border: 1px solid #e2e8f0; padding: 6px 8px; }
+                    th { background: #f8fafc; }
+                    .header { border-bottom: 2px solid #6366f1; padding-bottom: 15px; margin-bottom: 20px; }
+                    .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 9pt; }
+                </style>
+            </head>
+            <body>
+                ${container.innerHTML}
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+
+        // Give it a moment to render, then print
+        setTimeout(() => {
+            printWindow.print();
+            // Don't close immediately - let user save as PDF
+        }, 500);
+
+        document.body.removeChild(container);
+        return filename;
     } catch (err) {
         console.error('PDF generation error:', err);
         alert('PDF generation failed: ' + err.message);
-    } finally {
         if (document.body.contains(container)) {
             document.body.removeChild(container);
         }

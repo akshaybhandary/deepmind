@@ -102,17 +102,17 @@ export const DEPTH_LEVELS = [
         id: 'exhaustive',
         name: 'Exhaustive',
         description: 'Maximum depth',
-        taskCount: { min: 8, max: 12 },
+        taskCount: { min: 10, max: 15 },
         detailLevel: 'exhaustive',
-        estimatedTime: '~5min'
+        estimatedTime: '~8-10min'
     },
     {
         id: 'book',
         name: 'Book',
         description: 'Book-length treatise',
-        taskCount: { min: 15, max: 20 },
+        taskCount: { min: 20, max: 30 },
         detailLevel: 'book',
-        estimatedTime: '~10min'
+        estimatedTime: '~15-20min'
     }
 ];
 
