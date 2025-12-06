@@ -1,0 +1,23 @@
+# Render Blueprint - defines both frontend and backend services
+services:
+  # Frontend (Static Site)
+  - type: web
+    name: deepmind-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+
+  # Backend TTS Server
+  - type: web
+    name: deepmind-tts-server
+    runtime: python
+    buildCommand: pip install -r server/requirements.txt
+    startCommand: cd server && uvicorn tts_server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DEEPINFRA_API_KEY
+        sync: false # You'll need to set this in Render dashboard
+      - key: PYTHON_VERSION
+        value: 3.11.0
