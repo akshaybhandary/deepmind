@@ -281,17 +281,30 @@ DO NOT SUMMARIZE. DO NOT CONDENSE. EXPAND. ELABORATE. ENRICH. This is a BOOK.`
 export async function runSynthesizer(apiKey, model, plan, taskResults, onChunk, signal, depthLevel = 'standard') {
    // Build content from all task results
    let contentSections = '';
+   let totalWords = 0;
+
    for (const task of plan.tasks) {
       if (taskResults[task.id]) {
-         contentSections += `\n\n### ${task.title}\n${taskResults[task.id]}`;
+         contentSections += `\n\n## ${task.title}\n\n${taskResults[task.id]}`;
+         totalWords += taskResults[task.id].split(/\s+/).length;
       }
    }
 
    const depth = DEPTH_LEVELS.find(d => d.id === depthLevel) || DEPTH_LEVELS[1];
    const isDeep = ['exhaustive', 'book'].includes(depthLevel);
 
-   // Use much higher token limits for comprehensive reports
-   // Frontier models (Claude Opus 4.5, GPT-5.1, Gemini 3 Pro) support 65K+ output tokens
+   // For very large content (10K+ words), use light synthesis to avoid overwhelming the model
+   // The workers already produced comprehensive textbook content, so we just need to organize it
+   const isLargeContent = totalWords > 10000;
+
+   console.log(`Synthesis mode: ${isLargeContent ? 'light (organizing)' : 'full'}, Total words: ${totalWords}`);
+
+   if (isDeep && isLargeContent) {
+      // LIGHT SYNTHESIS: Add executive summary and organize, don't rewrite content
+      return runLightSynthesis(apiKey, model, plan, contentSections, totalWords, onChunk, signal);
+   }
+
+   // FULL SYNTHESIS: For smaller content or non-deep modes
    const maxTokens = depthLevel === 'book' ? 65000 : isDeep ? 50000 : 16000;
 
    const messages = [
@@ -318,6 +331,148 @@ Use proper markdown formatting. ${isDeep ? 'Remember: DO NOT SHORTEN OR SUMMARIZ
    ];
 
    return streamCompletion(apiKey, model, messages, onChunk, signal, maxTokens);
+}
+
+/**
+ * Light synthesis for large content - just add front matter and organize
+ * This is used when workers already produced comprehensive textbook content
+ */
+async function runLightSynthesis(apiKey, model, plan, contentSections, totalWords, onChunk, signal) {
+   const estimatedPages = Math.round(totalWords / 400); // ~400 words per page
+
+   // First, generate just the executive summary and front matter (much smaller request)
+   const frontMatterPrompt = `You are creating the front matter for a comprehensive document.
+
+Topic: "${plan.title}"
+Category: ${plan.category}
+Summary: ${plan.summary}
+Total Content: ${totalWords} words (approximately ${estimatedPages} pages)
+
+The main content has already been written by specialized agents. Your job is to write ONLY:
+
+1. A title page with:
+   - Document title (creative, engaging)
+   - Subtitle
+   - "Generated: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}"
+
+2. An Executive Summary (600-1000 words) that:
+   - Provides a comprehensive overview of the key themes
+   - Highlights the most important insights
+   - Explains what readers will learn
+   - Sets expectations for the depth of content
+
+3. A brief "How to Use This Document" section (100-150 words)
+
+Write in rich, engaging prose. This is the introduction to a ${estimatedPages}-page comprehensive analysis.
+Format in markdown with proper headers (# for title, ## for sections).`;
+
+   let frontMatter = '';
+   try {
+      frontMatter = await streamCompletion(
+         apiKey,
+         model,
+         [
+            { role: 'system', content: 'You are an expert document editor creating professional front matter.' },
+            { role: 'user', content: frontMatterPrompt }
+         ],
+         (chunk) => {
+            frontMatter += ''; // Don't stream front matter, we'll combine it
+         },
+         signal,
+         4000 // Small token limit for front matter
+      );
+   } catch (e) {
+      console.warn('Front matter generation failed, using default:', e.message);
+      // Use simple fallback front matter
+      frontMatter = `# ${plan.title}
+
+*A Comprehensive Analysis*
+
+**Generated:** ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+
+---
+
+## Executive Summary
+
+This document provides an exhaustive analysis of ${plan.title.toLowerCase()}, covering ${plan.tasks?.length || 'multiple'} major aspects of the topic. The analysis spans approximately ${estimatedPages} pages of detailed content.
+
+---`;
+   }
+
+   // Now generate a conclusion
+   const conclusionPrompt = `Based on a comprehensive ${estimatedPages}-page analysis of "${plan.title}", write a conclusion section that:
+
+1. **Conclusions & Key Insights** (400-600 words)
+   - Synthesize the major findings
+   - Highlight the most important takeaways
+   - Connect different aspects of the topic
+
+2. **Future Considerations** (200-300 words)
+   - What's next for this field/topic
+   - Unanswered questions
+   - Areas for further exploration
+
+3. **Further Resources** (100-150 words)
+   - Suggest 3-5 books or resources for deeper learning
+   - Brief description of why each is valuable
+
+Write in professional, engaging prose. Format in markdown with ## headers.`;
+
+   let conclusion = '';
+   try {
+      conclusion = await streamCompletion(
+         apiKey,
+         model,
+         [
+            { role: 'system', content: 'You are an expert document editor writing professional conclusions.' },
+            { role: 'user', content: conclusionPrompt }
+         ],
+         () => { }, // Don't stream
+         signal,
+         3000
+      );
+   } catch (e) {
+      console.warn('Conclusion generation failed, using simple ending:', e.message);
+      conclusion = `
+
+---
+
+## Conclusions
+
+This comprehensive analysis has explored ${plan.title} in extensive detail. The insights provided across the ${plan.tasks?.length || 'various'} sections offer a thorough understanding of this topic.
+
+## Further Resources
+
+For continued learning, consider exploring academic literature, industry publications, and expert commentary on this subject.`;
+   }
+
+   // Combine everything and stream to the user
+   const fullDocument = `${frontMatter}
+
+---
+
+# Table of Contents
+
+${plan.tasks.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}
+
+---
+
+${contentSections}
+
+---
+
+${conclusion}`;
+
+   // Stream the combined document to the user
+   const chunks = fullDocument.match(/.{1,100}/gs) || [fullDocument];
+   for (const chunk of chunks) {
+      if (signal?.aborted) throw new Error('Analysis cancelled');
+      onChunk?.(chunk);
+      // Small delay to simulate streaming
+      await new Promise(r => setTimeout(r, 5));
+   }
+
+   return fullDocument;
 }
 
 
